@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Documentation - utils.py</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 2rem;
+      background-color: #f8f9fa;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #2c3e50;
+    }
+    code {
+      background-color: #eef;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .function {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background-color: #fff;
+      border-left: 6px solid #16a085;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .signature {
+      font-family: monospace;
+      font-weight: bold;
+      color: #34495e;
+    }
+    .section {
+      margin-top: 0.5rem;
+    }
+    .param {
+      margin-left: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  
+  <a href="main.html" style="display:inline-block; margin-bottom:1.5rem; color:#2980b9; text-decoration:none; font-weight:bold;">&larr; Back to Main</a>
+
+
+  <h1>📘 Python Documentation: <code>utils.py</code></h1>
+  <p>This utility module provides helper functions that support the construction and debugging of quantum graph coloring circuits. It includes graph topology expansion logic and formatted output for statevectors.</p>
+
+  <div class="function">
+    <div class="signature">get_extended_edges(nodes, edges)</div>
+
+    <div class="section"><strong>Description:</strong></div>
+    <p>
+      Generates a set of extended edges by including not just the direct connections (edges), but also the indirect ones formed by the neighbors of neighbors (second-order neighbors). This is useful for enforcing more robust constraints in the graph coloring problem.
+    </p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>nodes</code> (<em>int</em>): Total number of nodes in the graph.</li>
+      <li class="param"><code>edges</code> (<em>list[tuple[int, int]]</em>): List of direct connections between nodes.</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p>
+      A list of tuples representing both direct and indirect (neighbor-of-neighbor) connections that do not already exist in the original edge list.
+    </p>
+
+    <div class="section"><strong>How It Works:</strong></div>
+    <ul>
+      <li>Constructs an adjacency list.</li>
+      <li>Computes second-degree neighbors.</li>
+      <li>Adds edges between each node and its second-degree neighbors if they are not already present.</li>
+    </ul>
+
+    <div class="section"><strong>Example:</strong></div>
+    <pre><code>
+original_edges = [(0, 1), (1, 2)]
+extended = get_extended_edges(3, original_edges)
+print(extended)  # Might include (0, 2) if it's a second-degree neighbor
+    </code></pre>
+  </div>
+
+  <div class="function">
+    <div class="signature">print_state(statevector, num_cols=0, print_0_prob=False, precision=6)</div>
+
+    <div class="section"><strong>Description:</strong></div>
+    <p>
+      Displays the quantum statevector in a human-readable format, showing probabilities and phases associated with each basis state. The output uses colored formatting to highlight important features:
+      <ul>
+        <li>Blue: phase ≈ 0</li>
+        <li>Yellow: phase ≈ π or -π</li>
+        <li>Red: nontrivial complex phase</li>
+      </ul>
+    </p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>statevector</code>: A <code>qiskit.quantum_info.Statevector</code> object to display.</li>
+      <li class="param"><code>num_cols</code> (<em>int</em>): Number of columns in the output (default is auto-computed).</li>
+      <li class="param"><code>print_0_prob</code> (<em>bool</em>): Whether to show states with probability zero (default <code>False</code>).</li>
+      <li class="param"><code>precision</code> (<em>int</em>): Number of decimal places for probability values (default <code>6</code>).</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p>
+      None (prints directly to console).
+    </p>
+
+    <div class="section"><strong>Dependencies:</strong></div>
+    <ul>
+      <li><code>cmath.phase()</code> is used to compute complex phase angle.</li>
+      <li>Colors are rendered with <code>termcolor.colored()</code>.</li>
+    </ul>
+
+    <div class="section"><strong>Example:</strong></div>
+    <pre><code>
+from qiskit import QuantumCircuit
+from qiskit.quantum_info import Statevector
+f

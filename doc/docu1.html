@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Documentation - graph_coloring.py</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 2rem;
+      background-color: #f8f9fa;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #2c3e50;
+    }
+    code {
+      background-color: #eef;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .function {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background-color: #fff;
+      border-left: 6px solid #2980b9;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .signature {
+      font-family: monospace;
+      font-weight: bold;
+      color: #34495e;
+    }
+    .section {
+      margin-top: 0.5rem;
+    }
+    .param {
+      margin-left: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="main.html" style="display:inline-block; margin-bottom:1.5rem; color:#2980b9; text-decoration:none; font-weight:bold;">&larr; Back to Main</a>
+
+  <h1>📘 Python Documentation: <code>graph_coloring.py</code></h1>
+  <p>This module provides quantum oracle constructors for the graph coloring problem. It integrates with Qiskit's circuit model and is designed to support different encoding strategies for quantum solutions to graph coloring via Grover's algorithm or Quantum Counting.</p>
+
+  <div class="function">
+    <div class="signature">graph_coloring_oracle_sat_formula(nodes, edges, chromaticSpace, use_extendedEdges=False)</div>
+    <div class="section"><strong>Description:</strong></div>
+    <p>Creates a SAT-based oracle circuit that encodes the graph coloring problem. It constructs the circuit to ensure that each node is assigned exactly one color and that no adjacent nodes share the same color. It also optionally adds constraints from extended edges (neighbors of neighbors).</p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>nodes</code> (<em>int</em>): Number of nodes in the graph.</li>
+      <li class="param"><code>edges</code> (<em>list of tuples</em>): List of edges, each represented as a pair of node indices (e.g., <code>(0, 1)</code>).</li>
+      <li class="param"><code>chromaticSpace</code> (<em>int</em>): Number of available colors for the coloring.</li>
+      <li class="param"><code>use_extendedEdges</code> (<em>bool</em>, default <code>False</code>): If true, constraints will be extended to second-degree neighbors.</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p>A <code>QuantumCircuit</code> that encodes the oracle and diffuser, ready for Grover’s algorithm.</p>
+
+    <div class="section"><strong>Implementation Notes:</strong></div>
+    <ul>
+      <li>Each node is assigned a tuple of qubits corresponding to possible colors.</li>
+      <li>Ancilla qubits are used for intermediate calculations, including multi-controlled gates for constraints.</li>
+      <li>Two main constraint blocks:
+        <ol>
+          <li>Each node must have exactly one color (using <code>mcx</code>).</li>
+          <li>No adjacent nodes can share the same color (using <code>ccx</code>).</li>
+        </ol>
+      </li>
+      <li>Applies a diffuser circuit (Grover operator) at the end.</li>
+    </ul>
+  </div>
+
+  <div class="function">
+    <div class="signature">graph_coloring_oracle_counters_OH(nodes, colors, edges, use_extendedEdges=False)</div>
+    <div class="section"><strong>Description:</strong></div>
+    <p>Constructs an oracle using a counter-based method with One-Hot encoding. Each color corresponds to a separate qubit per node. The oracle marks solutions that satisfy color uniqueness and adjacency constraints. This version also includes node indexing logic for improved complexity estimation.</p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>nodes</code>: Number of nodes in the graph.</li>
+      <li class="param"><code>colors</code>: Number of distinct colors.</li>
+      <li class="param"><code>edges</code>: List of edges of the graph.</li>
+      <li class="param"><code>use_extendedEdges</code>: Whether to extend the edge set with second-degree connections.</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p><code>QuantumCircuit</code> that flags valid colorings using controlled phase flips based on counter logic.</p>
+
+    <div class="section"><strong>Implementation Notes:</strong></div>
+    <ul>
+      <li>Uses a hierarchical encoding system for node indexing.</li>
+      <li>Ensures one-hot encoding by ensuring exactly one active color per node.</li>
+      <li>Uses ancilla qubits for cascading <code>ccx</code> operations to handle multiple edge constraints.</li>
+      <li>Applies a controlled phase gate as the final indicator for valid solutions.</li>
+    </ul>
+  </div>
+
+  <div class="function">
+    <div class="signature">graph_coloring_oracle_counters_bin(nodes, colors, edges, use_extendedEdges=False)</div>
+    <div class="section"><strong>Description:</strong></div>
+    <p>Builds a binary-encoded oracle using fewer qubits per node compared to One-Hot encoding. Each node's color is represented in binary. The oracle ensures valid colorings and avoids repeated colors on connected nodes.</p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>nodes</code>: Number of nodes in the graph.</li>
+      <li class="param"><code>colors</code>: Number of colors available.</li>
+      <li class="param"><code>edges</code>: Graph edge list.</li>
+      <li class="param"><code>use_extendedEdges</code>: Adds constraints from extended neighborhood if true.</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p><code>QuantumCircuit</code> encoding the problem with binary logic and phase marking for valid colorings.</p>
+
+    <div class="section"><strong>Implementation Notes:</strong></div>
+    <ul>
+      <li>Encodes each node’s color with <code>log2(colors)</code> qubits.</li>
+      <li>Handles invalid colors (e.g., unused binary values) via logic gate pruning.</li>
+      <li>More efficient in qubit usage than the one-hot version.</li>
+      <li>Applies <code>mcp(pi, ...)</code> as a global indicator of valid states.</li>
+    </ul>
+  </div>
+
+  <footer>
+    <p><em>Last updated: July 2025</em></p>
+  </footer>
+</body>
+</html>

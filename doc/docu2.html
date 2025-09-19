@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Documentation - quantum_algorithms.py</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 2rem;
+      background-color: #f8f9fa;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #2c3e50;
+    }
+    code {
+      background-color: #eef;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .function {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background-color: #fff;
+      border-left: 6px solid #2980b9;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .signature {
+      font-family: monospace;
+      font-weight: bold;
+      color: #34495e;
+    }
+    .section {
+      margin-top: 0.5rem;
+    }
+    .param {
+      margin-left: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  
+  <a href="main.html" style="display:inline-block; margin-bottom:1.5rem; color:#2980b9; text-decoration:none; font-weight:bold;">&larr; Back to Main</a>
+
+
+  <h1>📘 Python Documentation: <code>quantum_algorithms.py</code></h1>
+
+  <p>
+    This module defines several core quantum algorithm routines specifically for use with graph coloring problems.
+    These include Grover's search, quantum counting, and exponential search techniques with circuit-level integration for Qiskit.
+  </p>
+  <div class="function">
+    <div class="signature">create_exponential_graph_coloring_search(oracle, check_oracle, n_qubits, top_k, growth=8/7)</div>
+    <div class="section"><strong>Description:</strong></div>
+    <p>
+      Executes a quantum exponential search for graph coloring by combining the graph-coloring oracle, a Grover-based exponential subroutine, and a dedicated verification oracle.
+      The method incrementally increases the Grover iteration bound (<code>m</code>) by the <code>growth</code> factor, samples the top measurement candidates, and applies <code>check_oracle</code> to confirm valid solutions.
+    </p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>oracle</code>: A <code>QuantumCircuit</code> implementing the graph coloring predicate.</li>
+      <li class="param"><code>check_oracle</code>: A <code>QuantumCircuit</code> that verifies a measured bitstring corresponds to a valid coloring.</li>
+      <li class="param"><code>n_qubits</code> (<em>int</em>): Total qubits encoding the vertex-color assignments.</li>
+      <li class="param"><code>top_k</code> (<em>int</em>): Number of highest-probability outcomes to test per iteration.</li>
+      <li class="param"><code>growth</code> (<em>float</em>): Multiplicative factor to scale <code>m</code> each loop (default <code>8/7</code>).</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p>
+      A list of bits representing a valid coloring (e.g., <code>[1,0,1,...]</code>), or <code>None</code> if the search exhausts its bounds.
+    </p>
+
+    <div class="section"><strong>How It Works:</strong></div>
+    <ul>
+      <li>Initialize <code>m</code>=1 and loop until a solution is found or <code>m</code> exceeds √<code>n_qubits</code>.</li>
+      <li>Choose a random repetition count <code>j</code> ∈ [0, m-1] for Grover iterations.</li>
+      <li>Construct the Grover circuit: prepare superposition, apply <code>oracle</code> <code>j</code> times, and measure all <code>n_qubits</code>.</li>
+      <li>Select the top <code>top_k</code> outcomes by frequency and apply <code>check_oracle</code> to each bitstring.</li>
+      <li>If any verification yields '1', return the corresponding assignment; otherwise, update <code>m</code>←min(<code>growth·m</code>, √<code>n_qubits</code>) and repeat.</li>
+    </ul>
+
+    <div class="section"><strong>Example:</strong></div>
+    <pre><code>
+result = create_exponential_graph_coloring_search(
+    oracle=graph_oracle,
+    check_oracle=verification_oracle,
+    n_qubits=6,
+    top_k=3
+)
+print("Found coloring:", result)
+    </code></pre>
+  </div>
+
+  <div class="function">
+    <div class="signature">create_grover_search(oracle, m, n)</div>
+    <div class="section"><strong>Description:</strong></div>
+    <p>
+      Builds a Grover Search circuit that applies <code>m</code> iterations of the Grover operator using the specified oracle.
+    </p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>oracle</code>: A <code>QuantumCircuit</code> implementing a quantum oracle.</li>
+      <li class="param"><code>m</code> (<em>float</em>): Controls how many Grover iterations are applied.</li>
+      <li class="param"><code>n</code> (<em>int</em>): Number of variable qubits (usually <code>nodes * colors</code>).</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p><code>QuantumCircuit</code> implementing the full Grover search process.</p>
+
+    <div class="section"><strong>Example:</strong></div>
+    <pre><code>
+oracle = graph_coloring_oracle_sat_formula(3, [(0, 1), (1, 2)], 2)
+grover_circuit = create_grover_search(oracle, m=2, n=6)
+grover_circuit.draw('mpl')
+    </code></pre>
+  </div>
+
+  <div class="function">
+    <div class="signature">create_quantum_counting(oracle, n)</div>
+    <div class="section"><strong>Description:</strong></div>
+    <p>
+      Constructs a quantum counting circuit, which estimates the number of valid solutions encoded in the oracle using phase estimation and controlled oracle applications.
+    </p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>oracle</code>: The quantum oracle circuit.</li>
+      <li class="param"><code>n</code> (<em>int</em>): Number of qubits representing the solution space.</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p>
+      <code>QuantumCircuit</code> that can be run to estimate the number of satisfying assignments via inverse QFT and measurement.
+    </p>
+
+    <div class="section"><strong>Example:</strong></div>
+    <pre><code>
+oracle = graph_coloring_oracle_sat_formula(3, [(0, 1)], 2)
+qc = create_quantum_counting(oracle, n=6)
+qc.draw('mpl')
+    </code></pre>
+  </div>
+
+  <div class="function">
+    <div class="signature">create_diffuser(n)</div>
+    <div class="section"><strong>Description:</strong></div>
+    <p>
+      Creates the standard Grover diffuser operator on <code>n</code> qubits.
+      This operator performs inversion about the mean and is essential for Grover’s algorithm.
+    </p>
+
+    <div class="section"><strong>Parameters:</strong></div>
+    <ul>
+      <li class="param"><code>n</code> (<em>int</em>): Number of input qubits.</li>
+    </ul>
+
+    <div class="section"><strong>Returns:</strong></div>
+    <p><code>QuantumCircuit</code> implementing the diffuser operator.</p>
+
+    <div class="section"><strong>Example:</strong></div>
+    <pre><code>
+diffuser = create_diffuser(6)
+diffuser.draw('mpl')
+    </code></pre>
+  </div>
+
+  <footer>
+    <p><em>Last updated: July 2025</em></p>
+  </footer>
+</body>
+</html>
