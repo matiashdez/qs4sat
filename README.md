@@ -1,5 +1,5 @@
 
-# Quantum Graph Coloring Algorithms
+# QS4SAT: A Qiskit Library for Applying Quantum Search Algorithms and Constructing Quantum Oracles for SAT-Based Problems
 
 This repository provides quantum algorithm implementations for solving the **graph coloring problem**, leveraging Grover Search, Quantum Counting, and Quantum Exponential Search (QES). It includes custom oracle circuits and search strategies using Qiskit.
 
